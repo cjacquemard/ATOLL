@@ -84,8 +84,8 @@ class Basic:
 		try:
 			return self.protein.residues[indices]
 		except IndexError:
-			logger.error(f'Failed to get residues {self.label}')
-			pdb.set_trace()
+			logger.critical(f'Failed to get residues of {self.label}. It seems there is inconsistent numbering between structures and defined residues!')
+			raise IndexError(f'Residue indices not found!')
 
 	def renumber_protein_residues(self):
 		for residue in self.protein.residues:

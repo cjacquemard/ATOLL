@@ -58,8 +58,6 @@ class Atoll:
 		# Residues use for structure alignment
 		if args.resalign:
 			self.domains['alignment'] = frame.Selector.split(args.resalign)
-		else:
-			raise NotImplementedError
 
 		# Residues use for analysis
 		if args.reshelix:
@@ -102,13 +100,13 @@ class Atoll:
 		self.analyzer = procedure.Analyzer(self.structures, self.reference, self.output.dirpath)
 		if args.resalign is not None:
 			self.analyzer.add_analysis('align')
-		self.analyzer.add_analysis('phelix')
 		# self.analyzer.add_analysis('trajwrite')
+		self.analyzer.add_analysis('phelix')
 		self.analyzer.run()
 
 		pm = plot.ProjectionMap(
-			self.analyzer.analysis_procedures[1],
-			output_filepath=os.path.join(self.output.plot_dirpath, 'projection_map.png'),
+			self.analyzer.analysis_procedures[-1],
+			output_filepath=os.path.join(self.output.plot_dirpath, 'projection_map.svg'),
 			merging_type=args.merging_type,
 			colors=self.info.get_dict_values('color')
 		)
@@ -144,17 +142,18 @@ class Atoll:
 	def set_sequence(self, frame):
 		if frame.label in self.sequence_loader:
 			logger.info('by label')
-			sequence = self.sequence_loader[frame.label]
+			frame_sequence = self.sequence_loader[frame.label]
 		elif frame.protein_name in self.sequence_loader:
 			logger.info(f'by protein name {frame.protein_name}')
-			sequence = self.sequence_loader[frame.protein_name]
+			frame_sequence = self.sequence_loader[frame.protein_name]
 		elif self.sequence_loader.reference is not None:
 			logger.info('by reference')
-			sequence = self.sequence_loader.reference
+			frame_sequence = self.sequence_loader.reference
 		else:
-			logger.warning(f'No sequence was defined for {frame.label}')
+			logger.info('by structure')
+			frame_sequence = sequence.Sequence(frame.protein)
 
-		frame.sequence = deepcopy(sequence)
+		frame.sequence = deepcopy(frame_sequence)
 
 	def set_domain(self, frame):
 		for domain_name, intervals in self.domains.items():

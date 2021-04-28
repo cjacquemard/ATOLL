@@ -2,32 +2,37 @@
 Visualization tool for transmembrane protein structures
 
 ## Description
-ATOLL (Aligned Transmembrane dOmain Layout fLattening) est un petit programme permettant la visualisation de structures 3D de protéines transmembranaires (PTM). Le principe est de projeter des portion d'hélices sur le plan de la membrane comme un utilisateur regardant la protéine vue du dessus. Ainsi, il est possible de caractériser les états structuraux des structures sur un graphique simple et intuitif.
+ATOLL (Aligned Transmembrane dOmain Layout fLattening) is a program for visualizing 3D structures of transmembrane proteins (TMPs). The principle is to project portions of helices onto the plane of the membrane as a user looking at the protein from above. Thus, it is possible to characterise the structural states of the structures on a simple and intuitive chart. The program is associated with a publication (in progress).
 
 ## Réquis
-ATOLL est écrit en Python 3 et nécessite les librairies NumPy, SciPy, Matplotlib, PyYAML, Biopython et MDAnalysis. Il est fortement conseillé de créer un environnement Anaconda en utilisant le fichier conda3.yaml fourni. Le programme est compatible avec les systèmes d'exploitation Windows, Mac OS et Linux.
+ATOLL is written in Python 3 and requires the NumPy, SciPy, Matplotlib, PyYAML, Biopython and MDAnalysis modules. It is strongly recommended to create an Anaconda environment using the *conda3.yaml* file provided. The program is compatible with Windows, Mac OS and Linux operating systems.
 
-## Fonctionnement d'ATOLL
-### Fichiers d'entrées
-Pour lancer ATOLL, vous aurez besoin de plusieurs fichiers :
-- Les structures à analyser
-- Une structure de référence
-- Un fichier d'alignement des séquences
-- Un fichier d'annotation
+## How ATOLL works
+### Input files
+To launch ATOLL, several files must be providen:
+- structure(s) to be analysed
+- reference structure
+- sequence alignment file
+- annotation file
 
-#### Fichiers des structures à analyser
-Les fichiers comportent toutes les structures qui seront analysées par le programme ATOLL. Ils peuvent décrire une ou plusieurs protéines, dont chacune peut être représentée par une ou plusieurs structures comme pour les simulations par dynamique moléculaire. Ces fichiers n'impliquent pas de dispositions particulières en terme de préparation. Il est possible d'utiliser des structures issues de la PDB telles quelles, de même pour les trajectoires de dynamique moléculaire. Cependant, il est intéressant d'enlever tous les objets non-essentiels des fichiers comme les molécules d'eau qui vont augmenter le temps de lecture des trajectoires. ATOLL est capable de traiter à la fois des trajectoires et des structures statiques dans la même analyse.
-Pour les trajectoires de dynamique moléculaire, le fichier de topologie et le ou les fichiers de coordonnées de chaque entrée doivent être placés dans un répertoire dédié. Le programme effectue un scan du répertoire afin de retrouver les fichiers de topologie et de coordonnées selon l'extension de ces derniers.
-Ces fichiers peuvent contenir une seule structure (*statique* : PDB ou MOL2) ou plusieurs (*multiple* : CRD, RST, NC, DCD, ...). La liste des formats et extensions de fichier est la suivante :
-- Statique
+#### Structure file(s)
+These files contain the structures that will be analysed by the ATOLL program. They can describe one or more proteins, each of which can be represented by one or more structures as in molecular dynamics simulations. Note that if a file describes several proteins, they must be in a single chain.
+
+These files do not require any special preparation. It is possible to use structures from the PDB as they are, as well as the molecular dynamics (MD) trajectories. However, it is recommanded to remove all non-essential objects from the files, such as water molecules, which will increase the time required to read MD trajectories. Furthermore, the different structures should be consistent, i.e. have identical amino acid sequences. Otherwise, a sequence alignment file shall be provided (see below).
+
+ATOLL is able to process both trajectories and static structures in the same analysis.
+For molecular dynamics trajectories, the topology file and coordinate file(s) for each entry must be placed in a dedicated directory. The program scans the directory to find the topology and coordinate files by their extension.
+
+These files can contain a single structure (*static*: PDB or MOL2) or several (*multiple*: CRD, RST, NC, DCD, ...). The list of file formats and extensions is:
+- Static
     - Protein Data Bank (PDB): .pdb
     - SYBYLL (MOL2): .mol2
 - Multiple
-    - Topologie
+    - Topology
         - AMBER TOP: .prmtop, .top, parm7
         - CHARMM PSF: .psf
         - Protein Data Bank (PDB): .topdb
-    - Coordonnée
+    - Coordinate
         - AMBER CRD: .inpcrd
         - AMBER RST: .inprst
         - AMBER TRJ: .trj
@@ -36,41 +41,43 @@ Ces fichiers peuvent contenir une seule structure (*statique* : PDB ou MOL2) ou 
         - GROMACS XTC: .xtc
         - GROMACS TRR: .trr
 
-En fonction de la nature *statique* ou *multiple* du fichier, ATOLL représentera les protéines différemment (Voir la rubrique correspondante).
+Depending on the *static* or *multiple* nature of the file, ATOLL will represent the proteins differently.
 
-#### Fichier de référence
-La structure de référence joue un rôle crucial dans la procédure ATOLL. En effet, c'est sur cette dernière que sont superposées les structures à analyser. De plus, la définition des domaines est basée sur les résidus de la structure de référence. Par conséquent, la protéine doit être identique à celle des structures à analyser ou proche tout du moins. Il est également nécessaire que la structure soit placée dans un référentiel de coordonnées adapté aux projections. Actuellement, les positions des extrémités sont projetées sur le plan $xy$. Prochainement une routine sera ajoutée afin de placer la structure dans le référentiel adaptée en indiquant le plan de la membrane par des atomes. Il existe deux solutions afin d'avoir le référentiel adéquat. La première est que l'utilisateur place lui-même la protéine avec un logiciel tel que MOE ou Maestro. La deuxième possibilité est de télécharger la structure sur la base de données structurales des orientations des protéines dans la membrane (Orientation of proteins in membrane database, [OPM](https://opm.phar.umich.edu/)) et de spécifier à ATOLL les résidus utilisés pour l'alignement.
-A noter que le programme ATOLL ne prend en compte que le premier conformère pour la structure de référence, les suivants étant ignorés. Les formats de fichier supportés sont ceux des structures *statiques*.
+#### Reference file
+The reference structure plays a crucial role in the ATOLL procedure. Indeed, the structures to be analyzed are superimposed on it. Moreover, the definition of the domains is based on the residues of the reference structure. Therefore, the protein must be identical or close to that of the structures to be analyzed. If the user assigns the structural alignment with ATOLL, it is necessary that the structure is placed in a coordinate frame suitable for the projections. Currently, the positions of the ends are projected on the *XY* plane.
 
-#### Fichier d'alignement de séquences
-Ce fichier est indispensable si les séquences des protéines décrites dans les structures sont différentes. Le programme n'incorpore pas de routine capable d'effectuer des alignements de séquences multiples. Par conséquent, il doit être fait par des logiciels tiers comme MOE capable d'intégrer l'information structurale lors de l'alignement ou bien Clustal Omega via le [webservice](https://www.ebi.ac.uk/Tools/msa/clustalo/).
+There are two solutions for having the appropriate coordinate system. The first way is that the user places the protein himself with a software such as MOE or Maestro. The second way is to download the structure from the structural database of orientations of proteins in membrane [OPM](https://opm.phar.umich.edu/) and to specify to ATOLL the residues used for the alignment.
+Note that the ATOLL program takes into account only the first conformer for the reference structure, the following ones being ignored. The supported file formats are those of *static* structures.
 
-Le seul format supporté par ATOLL est le format Stockholm (.sto ou .stk) utilisé par exemple dans la base de donnée [Pfam](http://pfam.xfam.org/). Ce format a l'avantage d'offrir la possibilité à l'utilisateur d'y insérer des annotations par le biais de fonctionnalités préexistantes ou personnalisées. Chaque séquence possède une étiquette composée le plus souvent du nom de la protéine ainsi que de l'intervalle de séquence représenté. Dans le fichier, la séquence de référence est identifiée par la balise "#=GS label RE reference" et sa numérotation sera utilisée afin de définir les domaines.
+#### Sequence alignment file
+This file is crucial if the sequences of the proteins described in the structures are different. The program does not incorporate a routine capable of performing multiple sequence alignments. Therefore, it must be done by third party software such as MOE or Clustal Omega via the [webservice](https://www.ebi.ac.uk/Tools/msa/clustalo/).
 
-#### Fichier d'annotation
-Le fichier d'annotation est indispensable afin de fournir au programme toutes les informations sur les structures qu'il traitera. Les différentes informations sont formatées sous forme de tableau au format CSV (séparateur virgule) ou TSV (séparateur tabulation). Dans ATOLL, chaque structure *statique* et chaque répertoire comportant des structures *multiples* est considéré comme UNE entrée. Le tableau est composé de 6 champs :
-- "Entry": label unique pour chaque entrée
-- "Sequence name": le label associé dans le fichier d'alignement de séquences.
-- "Group": permet de définir un groupe pour plusieurs entrées
-- "Type": spécifie si il s'agit d'une entrée *statique* ou *multiple*
-- "Path": le chemin d'accès de l'entrée. Doit être un fichier si l'entrée est *statique* et un répertoire si l'entrée est *multiple*
-- "Color": la couleur associée à l'entrée lors de la génération du graphique
+The only supported format by ATOLL is the Stockholm format (extension .sto or .stk) used for example in the [Pfam](http://pfam.xfam.org/) database. In the file, the reference sequence is identified by the tag "#=GS label RE reference" and its numbering will be used to define domains.
 
-### Lancement du programme
-Le programme ce lance via un terminal. Voici un exemple :
+#### Annotation file
+The annotation file is essential in order to provide all the information on the structures during ATOLL procesing. Data is formatted as a table in CSV (comma separator) or TSV (tab separator) format. In ATOLL, each *static* structure and each directory with *multiple* structures is considered as an entry. The table is composed of 6 fields:
+- "Entry": unique label for each entry.
+- "Sequence name": associated label in the sequence alignment file.
+- "Group": define a group for several entries.
+- "Type": specifies whether it is a *static* or *multiple* entry.
+- "Path": path of the entry. Must be a file if the entry is *static* and a directory if the entry is *multiple*.
+- "Color": entry color when generating the chart.
+
+### Running ATOLL
+The program is launched via a terminal. Here is an example:
 
 ```bash
 python ../../bin/atoll.py -ref reference.pdb -seq sequences.sto -inf info.tsv -out results -ra 31-57+64-88+99-129+143-164+190-219+235-256+277-300 -rh 26-57+64-89+98-131+142-165+187-223+228-259+269-300 -rn resid --overwrite
 ```
 
-Dans les détails, les différentes options sont :
-- ```-ref```: le chemin de la structure de référence.
-- ```-seq```: le chemin du fichier d'alignement de séquence.
-- ```-inf```: le chemin du fichier d'annotation.
-- ```-out```: le chemin du répertoire ou toutes les sorties d'ATOLL seront stockées.
-- ```-ra```: les résidus utilisés lors de l'alignement structural.
-- ```-rh```: la définition des hélices transmembranaires à projeter.
-- ```-rn```: la manière dont sont interprétées les résidus fournis dans ```-ra``` et ```-rh```. Les valeurs autorisées sont "position" qui correspond à la position des résidus dans le fichier d'alignement de séquence, et "resid" qui correspond au numéro des résidus dans le même fichier. A noter que le numéro de résidu est défini dans l'étiquette de la séquence.
-- ```--overwrite```: Si le répertoire de sorti est existant, il sera alors écrasé.
+In detail, the different options are :
+- ```-ref```: path of the reference structure.
+- ```-seq```: path of the sequence alignment file.
+- ```-inf```: path of the annotation file.
+- ```-out```: path of the directory where outputs will be stored.
+- ```-ra```: residues used during structural alignment.
+- ```-rh```: definition of the transmembrane helices to be projected.
+- ```-rn```: how the residues provided in ```-ra``` and ```-rh``` are interpreted. The allowed values are "position" which corresponds to the position of the residues in the sequence alignment file or in the reference structure, and "resid" which corresponds to the residue number.
+- ```--overwrite```: If the output directory exists, it will be overwritten.
 
-NB: La synthaxe de résidus dans  ```-ra``` et ```-rh``` permet de définir une étendue avec le caractère '-' et de séparer les étendues avec le caractère '+'.
+NB: The residue synthax in ```-ra``` and ```-rh``` allows to define a range with the character '-' and to separate the ranges with the character '+'.

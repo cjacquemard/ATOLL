@@ -81,7 +81,7 @@ class Density:
 
 class Plotter:
 	_COLORS = ('tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink')
-	_LIM_FACTOR = 0.25
+	_LIM_FACTOR = 0.1
 	_DPI = 600
 	_PAD = 5
 	_FIG_LENGTH = 3.33
@@ -271,9 +271,9 @@ class ProjectionMap(Plotter):
 		for group_name in self.group_densities:
 			region_name, domain_name = group_name
 			current_density = self.group_densities[group_name]
-			current_domain_coordinates = current_density.get_contour([-0.5])[0]
+			current_domain_coordinates = current_density.get_contour([-1.0])[0]
 
-			other_domain_coordinates = np.vstack([d.get_contour([-0.5])[0] for n, d in self.group_densities.items() if n != group_name])
+			other_domain_coordinates = np.vstack([d.get_contour([-1.0])[0] for n, d in self.group_densities.items() if n != group_name])
 
 			distances = cdist(current_domain_coordinates, other_domain_coordinates)
 			index = np.argmin(np.sqrt(np.mean(1 / distances**2, axis=1)))
