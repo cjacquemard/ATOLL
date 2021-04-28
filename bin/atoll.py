@@ -100,7 +100,8 @@ class Atoll:
 		self.output = frame.Output(args.output_dirpath, args.overwrite)
 
 		self.analyzer = procedure.Analyzer(self.structures, self.reference, self.output.dirpath)
-		self.analyzer.add_analysis('align')
+		if args.resalign is not None:
+			self.analyzer.add_analysis('align')
 		self.analyzer.add_analysis('phelix')
 		# self.analyzer.add_analysis('trajwrite')
 		self.analyzer.run()
@@ -187,10 +188,10 @@ if __name__ == '__main__':
 	selection_group = parser.add_argument_group('selection')
 	selection_group.add_argument('--resnum', '-rn', choices=['position', 'resid'], default='position',
 		help='Residue numbering to apply.')
-	selection_group.add_argument('--resalign', '-ra', required=True,
+	selection_group.add_argument('--resalign', '-ra',
 		help='Selection of residues involved in structure alignment.')
 	selection_group.add_argument('--reshelix', '-rh', required=True,
-		help='Selection of residues to analyze which correspond to transmembrane helice ends.')
+		help='Selection of residues to analyze that correspond to transmembrane helice ends.')
 
 	output_group = parser.add_argument_group('output')
 	output_group.add_argument('--output', '-out', required=True, dest='output_dirpath',

@@ -196,8 +196,9 @@ class Reference(Static):
 
 class Multiple(path.DirChecker, Basic):
 	_SUPPORTED_TOPOLOGY_FILEEXTS = ('.top', '.prmtop', 'parm7', '.psf', '.topdb')
-	_SUPPORTED_COORDINATE_FILEEXTS = ('.inpcrd', '.restrt', '.trj', '.nc', '.ncdf', '.dcd', '.xtc', '.trr', '.pdb', '.mol2')
-	_SUPPORTED_SINGLE_FILEEXTS = ('.pdb', '.mol2')
+	# _SUPPORTED_COORDINATE_FILEEXTS = ('.inpcrd', '.restrt', '.trj', '.nc', '.ncdf', '.dcd', '.xtc', '.trr', '.pdb', '.mol2')
+	_SUPPORTED_COORDINATE_FILEEXTS = ('.inpcrd', '.restrt', '.trj', '.nc', '.ncdf', '.dcd', '.xtc', '.trr')
+	# _SUPPORTED_SINGLE_FILEEXTS = ('.pdb', '.mol2')
 	_TOPOLOGY_FORMATS = {
 		'.topdb': 'pdb',
 		'.prmtop': 'prmtop'
